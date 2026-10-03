@@ -1,0 +1,17 @@
+# Pull in all runtime dependencies so dev installs are a superset
+-r requirements.txt
+
+# Test runner
+pytest~=8.3.3
+
+# Test coverage reports (pytest --cov)
+pytest-cov~=5.0.0
+
+# Freezes time in tests so expiry and date logic is deterministic
+freezegun~=1.5.1
+
+# Mocks outgoing `requests` calls so tests never hit the network
+responses~=0.25.3
+
+# Fast linter and formatter (ruff check . / ruff format .)
+ruff~=0.6.9
