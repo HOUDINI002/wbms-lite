@@ -1,0 +1,21 @@
+# WBMS-Lite tool configuration (minimal on purpose).
+#
+# Why this file matters right now: pytest decides its "rootdir" from the first
+# pyproject.toml or pytest.ini it finds walking up from where you run it. Without
+# this file in the project folder, pytest climbs out of wbms-lite and anchors on
+# whatever it finds higher up.
+#
+# The deck's pytest prompt (slide 84) extends this section later with markers,
+# strict markers and filterwarnings. Edit this file then, do not add a second one.
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
+
+[tool.coverage.run]
+source = ["wbms"]
+
+[tool.coverage.report]
+show_missing = true
