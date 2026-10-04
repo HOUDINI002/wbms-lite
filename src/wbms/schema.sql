@@ -1,0 +1,1 @@
+-- WBMS-Lite database schema (deck slide 62).
