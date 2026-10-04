@@ -26,7 +26,11 @@ import argparse
 import sys
 from collections.abc import Sequence
 from dataclasses import dataclass
-from enum import StrEnum
+from enum import Enum
+
+class StrEnum(str, Enum):
+    def __str__(self):
+        return str(self.value)
 from pathlib import Path
 
 PROJECT_NAME = "wbms-lite"
