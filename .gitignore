@@ -18,10 +18,20 @@ __pycache__/
 *$py.class
 .mypy_cache/
 .ruff_cache/
+.pytype/
+.pyre/
+.ipynb_checkpoints/
+__pypackages__/
 
 # ---- Test and coverage output ----
-# Test caches and coverage reports are build output, not source.
+# Test caches, temp folders and coverage reports are build output, not source.
+# .pytest_tmp/ is the fallback folder from `pytest --basetemp=.pytest_tmp`. It
+# holds copies of project files, so it must be ignored or ruff lints those copies.
 .pytest_cache/
+.pytest_tmp/
+.pytest_tmp*/
+pytest-of-*/
+.hypothesis/
 .coverage
 .coverage.*
 coverage.xml
@@ -34,6 +44,13 @@ htmlcov/
 .env
 .env.*
 !.env.example
+# Keys and certificates (Daraja, ngrok, router, TLS) never belong in Git.
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+ngrok.yml
 
 # ---- SQLite databases ----
 # Local database files (and their journal/WAL side files) are runtime data, not source.
@@ -53,6 +70,7 @@ instance/
 *.log
 *.log.*
 logs/
+PowerShell_transcript*.txt
 
 # ---- Docker local overrides ----
 # Override files hold per-developer Compose settings and should not be shared.
@@ -67,11 +85,29 @@ build/
 dist/
 *.egg-info/
 
-# ---- VS Code settings ----
+# ---- Node (only if a front-end tool is added later) ----
+node_modules/
+
+# ---- Scratch files and downloads ----
+# Backups, merge leftovers, delivered step archives and screenshots you take while
+# debugging (they can show passwords or tokens).
+*.bak
+*.orig
+*.rej
+*.tmp
+wbms-step*.zip
+Screenshot*.png
+Screenshots/
+
+# ---- Editors ----
 # Ignore personal editor settings but keep the shared extension recommendations.
 # (.vscode/* with a star, not .vscode/, so the ! exception below can work.)
 .vscode/*
 !.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
 
 # ---- Operating-system junk ----
 # Files that Windows and macOS create automatically in folders.
