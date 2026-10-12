@@ -31,7 +31,7 @@ from enum import Enum
 class StrEnum(str, Enum):
     def __str__(self):
         return str(self.value)
-from pathlib import Path
+from pathlib import Path  # noqa: E402
 
 PROJECT_NAME = "wbms-lite"
 PACKAGE_NAME = "wbms"
