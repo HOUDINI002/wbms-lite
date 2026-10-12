@@ -71,4 +71,11 @@ def create_app(settings: Settings | None = None) -> Flask:
         settings.PAYMENT_GATEWAY,
         settings.ROUTER_ADAPTER,
     )
+
+    from wbms.web.api_packages import bp as api_packages_bp
+    from wbms.web.portal import bp as portal_bp
+
+    app.register_blueprint(api_packages_bp)
+    app.register_blueprint(portal_bp)
+
     return app
