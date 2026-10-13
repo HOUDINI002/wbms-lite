@@ -1,0 +1,11 @@
+# Web framework: routing, request handling, templating for the app
+Flask~=3.0.3
+
+# Loads settings and secrets from a .env file into environment variables
+python-dotenv~=1.0.1
+
+# HTTP client for calling external APIs
+requests~=2.32.3
+
+# Production WSGI server (Flask's built-in server is for development only)
+gunicorn~=23.0.0

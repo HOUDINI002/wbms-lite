@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Buy Wi-Fi time</title>
+  <link rel="stylesheet" href="{{ url_for('portal.static', filename='portal.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to the form</a>
+
+  <header class="site-header">
+    <p class="brand">WBMS-Lite Wi-Fi</p>
+  </header>
+
+  <main id="main"
+        data-packages-url="/api/packages"
+        data-payments-url="/api/payments"
+        data-mac-present="{{ 'true' if mac else 'false' }}">
+    <h1>Buy Wi-Fi time</h1>
+    <p class="lead">Pick a package, enter your M-Pesa number and pay.</p>
+
+    {% if not mac %}
+    <p class="notice" id="mac-notice" role="note">
+      This page must be opened from the hotspot, which supplies your device
+      address. For testing, add <code>?mac=AA:BB:CC:DD:EE:FF</code> to the
+      address in your browser.
+    </p>
+    {% endif %}
+
+    <noscript>
+      <p class="notice" role="note">Please turn on JavaScript to see the packages and pay.</p>
+    </noscript>
+
+    <form id="pay-form" novalidate>
+      <input type="hidden" name="mac" id="mac" value="{{ mac }}">
+
+      <fieldset class="packages" id="package-fieldset" aria-describedby="package-error">
+        <legend>1. Choose a package</legend>
+        <div id="packages" aria-live="polite" aria-busy="true">
+          <p id="packages-status" class="status">Loading packages&hellip;</p>
+        </div>
+        <p class="field-error" id="package-error" hidden></p>
+      </fieldset>
+
+      <div class="field">
+        <label for="phone">2. M-Pesa phone number</label>
+        <input id="phone" name="phone" type="tel" inputmode="tel"
+               autocomplete="tel" placeholder="0712 345 678"
+               aria-describedby="phone-hint phone-error">
+        <p class="hint" id="phone-hint">For example 0712 345 678 or +254 712 345 678.</p>
+        <p class="field-error" id="phone-error" hidden></p>
+      </div>
+
+      <button type="submit" id="pay-button" class="pay-button">Pay with M-Pesa</button>
+
+      <div id="form-message" class="form-message" role="status" aria-live="polite" hidden></div>
+    </form>
+  </main>
+
+  <script src="{{ url_for('portal.static', filename='portal.js') }}" defer></script>
+</body>
+</html>
