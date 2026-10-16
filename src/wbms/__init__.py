@@ -30,6 +30,8 @@ def register_blueprints(app: Flask) -> None:
     Empty for now. Later steps add one line per blueprint here, for example
     ``app.register_blueprint(portal_bp)``, so ``create_app`` never has to change.
     """
+    from wbms.web.api_payments import bp as api_payments_bp
+    app.register_blueprint(api_payments_bp)
 
 
 def create_app(settings: Settings | None = None) -> Flask:

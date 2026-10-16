@@ -1,4 +1,4 @@
--- =============================================================================
+    -- =============================================================================
 -- WBMS-Lite database schema (SQLite)
 --
 -- Rules used throughout:
@@ -56,6 +56,7 @@ CREATE TABLE IF NOT EXISTS transactions (
                         CHECK (status IN ('pending', 'success', 'failed')),
     gateway_ref TEXT    UNIQUE,
     receipt     TEXT,
+    mac_address TEXT,
     created_at  TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
     paid_at     TEXT,
     CHECK (method = 'voucher' OR customer_id IS NOT NULL),
