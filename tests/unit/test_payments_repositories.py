@@ -83,7 +83,11 @@ def test_mark_failed_only_moves_pending_transactions(conn):
     customer = CustomerRepository(conn).upsert("254712345671", NOW)
     repo = TransactionRepository(conn)
     tx = repo.insert_pending(customer.id, 1, 20, "AA:BB:CC:DD:EE:FF", NOW)
-    conn.execute("UPDATE transactions SET status = 'success', paid_at = ? WHERE id = ?", (NOW, tx.id,))
+    conn.execute(
+        "UPDATE transactions SET status = 'success', receipt = 'R1', paid_at = ? "
+        "WHERE id = ?",
+        (NOW, tx.id),
+    )
 
     assert repo.mark_failed(tx.id) is False
     assert repo.get(tx.id).status == "success"

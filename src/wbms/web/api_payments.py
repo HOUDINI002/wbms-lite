@@ -9,6 +9,7 @@ Responses
 
 from __future__ import annotations
 
+import hmac
 import logging
 from collections.abc import Callable
 from typing import Any
@@ -31,6 +32,8 @@ bp = Blueprint("api_payments", __name__)
 SERVICE_FACTORY_KEY = "wbms_payment_service_factory"
 LIMITER_KEY = "wbms_payments_limiter"
 GATEWAY_KEY = "wbms_payment_gateway"
+SESSION_STARTER_KEY = "wbms_session_starter"  # Step 11 stores SessionService here
+CALLBACK_SECRET_KEY = "wbms_callback_secret"  # tests override; else Settings
 
 RATE_LIMIT = 5
 RATE_WINDOW_SECONDS = 60
@@ -70,6 +73,7 @@ def _default_service() -> PaymentService:
         PackageRepository(conn),
         gateway,
         utc_now,
+        session_starter=current_app.extensions.get(SESSION_STARTER_KEY),
     )
 
 
@@ -152,3 +156,36 @@ def start_payment() -> tuple[Response, int]:
             "gateway_error", "Payment provider unavailable. Please try again.", 502
         )
     return jsonify({"transaction_id": tx.id, "status": tx.status}), 202
+
+
+def _callback_secret() -> str:
+    override = current_app.extensions.get(CALLBACK_SECRET_KEY)
+    return str(override if override is not None else _find_settings().CALLBACK_SECRET)
+
+
+@bp.post("/api/payments/callback/<secret>")
+def payment_callback(secret: str) -> tuple[Response, int]:
+    """Receive the gateway's result for a payment.
+
+    A wrong secret gets 403 and changes nothing. With the right secret the
+    gateway always gets 200 {"ResultCode": 0, "ResultDesc": "Accepted"}, even
+    for unknown, duplicate or malformed callbacks, so it never retries them
+    forever. What actually happened is in the log and in the transaction.
+    """
+    expected = _callback_secret()
+    # compare_digest takes the same time wherever the strings differ; an empty
+    # configured secret is refused outright so a missing setting is not a hole.
+    if not expected or not hmac.compare_digest(
+        secret.encode("utf-8"), expected.encode("utf-8")
+    ):
+        logger.warning("callback_rejected reason=bad_secret ip=%s", request.remote_addr)
+        return _error("forbidden", "Forbidden.", 403)
+
+    try:
+        outcome = _get_service().apply_callback(request.get_json(silent=True))
+        logger.info("callback_outcome outcome=%s", outcome.value)
+    except Exception:
+        # The database change was rolled back; the transaction stays pending
+        # and Step 10's reconcile job will ask the gateway about it.
+        logger.exception("callback_error")
+    return jsonify({"ResultCode": 0, "ResultDesc": "Accepted"}), 200

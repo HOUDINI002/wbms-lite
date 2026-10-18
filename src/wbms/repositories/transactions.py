@@ -64,6 +64,13 @@ class TransactionRepository:
         ).fetchone()
         return self._to_transaction(row) if row else None
 
+    def get_by_gateway_ref(self, gateway_ref: str) -> Transaction | None:
+        """Return the transaction the gateway knows as ``gateway_ref``, or None."""
+        row = self._conn.execute(
+            "SELECT * FROM transactions WHERE gateway_ref = ?", (gateway_ref,)
+        ).fetchone()
+        return self._to_transaction(row) if row else None
+
     def insert_pending(
         self,
         customer_id: int,
@@ -102,6 +109,20 @@ class TransactionRepository:
             "UPDATE transactions SET gateway_ref = ? "
             "WHERE id = ? AND status = 'pending'",
             (gateway_ref, transaction_id),
+        )
+        return cursor.rowcount == 1
+
+    def mark_success(self, transaction_id: int, receipt: str, paid_at: str) -> bool:
+        """Move pending -> success with receipt and paid_at, in one statement.
+
+        The schema ties ``status = 'success'`` to ``paid_at IS NOT NULL``, so both
+        are written together. Returns False if the row was no longer pending,
+        which is how a duplicate or concurrent callback is detected.
+        """
+        cursor = self._conn.execute(
+            "UPDATE transactions SET status = 'success', receipt = ?, paid_at = ? "
+            "WHERE id = ? AND status = 'pending'",
+            (receipt, paid_at, transaction_id),
         )
         return cursor.rowcount == 1
 

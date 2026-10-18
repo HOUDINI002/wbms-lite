@@ -506,4 +506,4 @@ python scripts\add_mac_to_transactions.py
 | 7 Payment interface and mock | done |
 | 8 Start payment | done |
 | 9 Payment callback | next |
-
+Add-Content README.md (Get-Content docs\readme-step9-snippet.md -Raw)
