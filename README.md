@@ -17,7 +17,7 @@ need no M-Pesa account and no MikroTik router to develop or test it.
 | Lab 1 | Project skeleton, tooling, virtual environment | Done |
 | M1 Foundation | Config, app factory, `/health`, database helper, schema, seed data | Done (Steps 1 to 3) |
 | M2 Catalog | Packages repository, service, admin CRUD, portal list | Done (Steps 4 to 6): repository, service and JSON API (admin login still a stub), and the captive portal page |
-| M3 Payments | Gateway interface, mock gateway, payment and callback flow | Not started. Step 7 (payment interface and mock gateway) is next |
+| M3 Payments | Gateway interface, mock gateway, payment and callback flow | In progress. Steps 7 to 9 done (gateway, start payment, callback); Step 10 (idempotency and callback hardening) is next |
 | M4 Access | Sessions, router adapter, expiry worker | Not started |
 | M5 Admin and vouchers | Login, dashboard, voucher CLI | Not started |
 
@@ -83,7 +83,7 @@ python -c "import secrets; print(secrets.token_hex(32))"
 | `DATABASE_PATH` | `instance/wbms.sqlite3` | no | SQLite file. Relative paths start at the project root; the folder is created on first use. Never commit it. |
 | `PAYMENT_GATEWAY` | `mock` | no | `mock` or `daraja`. |
 | `ROUTER_ADAPTER` | `mock` | no | `mock` or `mikrotik`. |
-| `CALLBACK_SECRET` | empty | when `daraja` | Protects the payment callback URL. |
+| `CALLBACK_SECRET` | empty | to use the callback route | Protects the payment callback URL. |
 | `DARAJA_CONSUMER_KEY` | empty | when `daraja` | From the Safaricom developer portal. |
 | `DARAJA_CONSUMER_SECRET` | empty | when `daraja` | From the Safaricom developer portal. |
 | `DARAJA_SHORTCODE` | empty | when `daraja` | Business shortcode. |
@@ -500,19 +500,12 @@ Existing databases need one migration (new `transactions.mac_address` column):
 python scripts\add_mac_to_transactions.py
 ```
 
-| Step | Status |
-|---|---|
-| 1-6 Foundation, catalog, portal | done |
-| 7 Payment interface and mock | done |
-| 8 Start payment | done |
-| 9 Payment callback | next |
-Add-Content README.md (Get-Content docs\readme-step9-snippet.md -Raw)
-
 <!-- wbms:step-09 -->
 ## Payments: the callback (Step 9)
 
 `POST /api/payments/callback/<CALLBACK_SECRET>` receives the gateway result
-(Daraja-style STK callback).
+(Daraja-style STK callback). Set `CALLBACK_SECRET` in `.env` to a long random
+value; an empty secret makes the route answer 403 to everyone.
 
 | Case | Result |
 |---|---|
@@ -524,5 +517,11 @@ Add-Content README.md (Get-Content docs\readme-step9-snippet.md -Raw)
 
 The gateway always receives `{"ResultCode": 0, "ResultDesc": "Accepted"}` once the
 secret is right. Until Step 11 the session start is a no-op placeholder.
-Update the status table: Step 9 is done, Step 10 is next.
 
+| Step | Status |
+|---|---|
+| 1-6 Foundation, catalog, portal | done |
+| 7 Payment interface and mock | done |
+| 8 Start payment | done |
+| 9 Payment callback | done |
+| 10 Idempotency and callback hardening | next |
